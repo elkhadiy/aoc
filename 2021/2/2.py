@@ -1,15 +1,8 @@
-#/usr/bin/env python3
-
-import requests as rq
-import requests_cache
-requests_cache.install_cache("/home/yelkhadi/.aoc/cache")
+import aoc
 
 day = 2
-session_cookie_location = "/home/yelkhadi/.aoc/secret"
 
-with open(session_cookie_location, "r") as session:
-    headers = {"Cookie": session.readline()[:-1]}
-moves_req = rq.get(f"https://adventofcode.com/2021/day/{day}/input", headers=headers).text
+moves_req = aoc.input(day)
 
 moves = [
     (move.split(' ')[0], int(move.split(' ')[1]))
