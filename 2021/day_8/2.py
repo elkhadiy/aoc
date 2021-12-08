@@ -6,112 +6,60 @@ import pandas as pd
 
 day = 8
 
-pinput = aoc.input(day)
-inputs = pinput.split('\n')[:-1]
+inputs = aoc.input(day).split('\n')[:-1]
 
 # Assumes all patterns are available in the input
 
-def one(patterns):
-    for p in patterns:
-        if len(p) == 2:
-            return p
+one   = lambda codes: set(codes[[len(code) for code in codes].index(2)])
+seven = lambda codes: set(codes[[len(code) for code in codes].index(3)])
+four  = lambda codes: set(codes[[len(code) for code in codes].index(4)])
+eight = lambda codes: set(codes[[len(code) for code in codes].index(8)])
 
-def seven(patterns):
-    for p in patterns:
-        if len(p) == 3:
-            return p
+six_nine_zero = lambda codes: [set(code) for code in codes if len(code) == 6]
 
-def four(patterns):
-    for p in patterns:
-        if len(p) == 4:
-            return p
+cf  = lambda codes: one(codes)
+bd  = lambda codes: four(codes) - one(codes)
+cde = lambda codes: set('abcdefg') - set.intersection(*six_nine_zero(codes))
 
-def eight(patterns):
-    for p in patterns:
-        if len(p) == 8:
-            return p
+a = lambda codes: seven(codes) - one(codes)
+c = lambda codes: cde(codes) & cf(codes)
+f = lambda codes: cf(codes) - c(codes)
+d = lambda codes: bd(codes) & cde(codes)
+b = lambda codes: bd(codes) - d(codes)
+e = lambda codes: cde(codes) - c(codes) - d(codes)
+g = lambda codes: set('abcdefg') - a(codes) - b(codes) - c(codes) - d(codes) - e(codes) - f(codes)
 
-def six_or_nine_or_zero(patterns):
-    return [p for p in patterns if len(p) == 6]
-
-def two_or_three_or_five(patterns):
-    return [p for p in patterns if len(p) == 5]
-
-def a(patterns):
-    return [l for l in seven(patterns) if l not in one(patterns)][0]
-
-def bd(patterns):
-    return [l for l in four(patterns) if l not in one(patterns)]
-
-def cf(patterns):
-    return one(patterns)
-
-def cde(patterns):
-    res = ""
-    p = six_or_nine_or_zero(patterns)
-    for l in p[0]:
-        if (l not in p[1]) or (l not in p[2]):
-            res += l
-    for l in p[1]:
-        if (l not in p[0]) or (l not in p[2]):
-            res += l
-    for l in p[2]:
-        if (l not in p[1]) or (l not in p[0]):
-            res += l
-    return "".join(set(res))
-
-def determine_cf(patterns):
-    for l in cf(patterns):
-        if l in cde(patterns):
-            return {"c": l, "f": [m for m in cf(patterns) if m != l][0]}
-        else:
-            return {"f": l, "c": [m for m in cf(patterns) if m != l][0]}
-
-def determine_bd(patterns):
-    for l in bd(patterns):
-        if l in cde(patterns):
-            return {"d": l, "b": [m for m in bd(patterns) if m != l][0]}
-        else:
-            return {"b": l, "d": [m for m in bd(patterns) if m != l][0]}
-
-def cipher(patterns):
-    letters = {}
-    letters['a'] = a(patterns)
-    letters.update(determine_cf(patterns))
-    letters.update(determine_bd(patterns))
-    c = letters['c']
-    d = letters['d']
-    for l in cde(patterns):
-        if l != c and l != d:
-            letters['e'] = l
-    for v in 'abcdefg':
-        if v not in letters.values():
-            letters['g'] = v
-    return letters
-
-tablevals = {
-    'abcefg': 0,
-    'cf': 1,
-    'acdeg': 2,
-    'acdfg': 3,
-    'bcdf': 4,
-    'abdfg': 5,
-    'abdefg': 6,
-    'acf': 7,
-    'abcdefg': 8,
-    'abcdfg': 9
+enc = lambda codes: {
+    'a': next(iter(a(codes))),
+    'b': next(iter(b(codes))),
+    'c': next(iter(c(codes))),
+    'd': next(iter(d(codes))),
+    'e': next(iter(e(codes))),
+    'f': next(iter(f(codes))),
+    'g': next(iter(g(codes)))
 }
 
-def decode(patterns, outputs):
-    val = 0
-    coef = 1000
-    letters = cipher(patterns)
-    decipher = {v: k for k, v in letters.items()}
+dec = lambda codes: {v: k for k, v in enc(codes).items()}
+
+segments = {
+    'abcefg':  '0',
+    'cf':      '1',
+    'acdeg':   '2',
+    'acdfg':   '3',
+    'bcdf':    '4',
+    'abdfg':   '5',
+    'abdefg':  '6',
+    'acf':     '7',
+    'abcdefg': '8',
+    'abcdfg':  '9'
+}
+
+def decode(codes, outputs):
+    deciphered = ''
+    decipher = dec(codes)
     for output in outputs:
-        deciphered = ''.join(sorted([decipher[l] for l in output]))
-        val += coef * tablevals[deciphered]
-        coef /= 10
-    return int(val)
+        deciphered += segments[''.join(sorted([decipher[l] for l in output]))]
+    return int(deciphered)
 
 total = 0
 for input in inputs:
