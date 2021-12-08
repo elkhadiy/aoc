@@ -6,8 +6,7 @@ import pandas as pd
 
 day = 8
 
-pinput = aoc.input(day)
-inputs = pinput.split('\n')[:-1]
+inputs = aoc.input(day).split('\n')[:-1]
 
 count = 0
 
