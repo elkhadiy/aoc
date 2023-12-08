@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+exclude = [
+    "2020",
+    "2021"
+]
+
+[project]
+name = "AOC"
+version = "0.1.0"
+authors = [
+    {"name"="EL KHADIRI Yassine", "email"="yassineelkhadiri@gmail.com"}
+]
+description = "AOC utility and solutions"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "llvmlite",
+    "numba",
+    "beautifulsoup4",
+    "requests",
+    "requests_cache"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/elkhadiy/elkomplex"
+"Bug Tracker" = "https://github.com/elkhadiy/elkomplex/issues"
