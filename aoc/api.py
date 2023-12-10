@@ -1,7 +1,17 @@
+import datetime
+from pathlib import Path
+
 from bs4 import BeautifulSoup
 import requests as rq
 import requests_cache
-import datetime
+
+from . import configd
+
+
+def login(session_secret):
+    session_cookie_location = Path(configd) / "secret"
+    with open(session_cookie_location, "w") as session:
+        session.write(f"session={session_secret}")
 
 
 def input(day, year=None):
@@ -9,14 +19,15 @@ def input(day, year=None):
     if not year:
         year = datetime.datetime.now().year
 
-    requests_cache.install_cache("/home/yelkhadi/.aoc/cache")
+    requests_cache.install_cache(Path(configd) / "cache")
 
-    session_cookie_location = "/home/yelkhadi/.aoc/secret"
+    session_cookie_location = Path(configd) / "secret"
 
     with open(session_cookie_location, "r") as session:
-        headers = {"Cookie": session.readline()[:-1]}
-    
-    return rq.get(f"https://adventofcode.com/{year}/day/{day}/input", headers=headers).text
+        headers = {"Cookie": session.read().rsplit()[0]}
+
+    return rq.get(f"https://adventofcode.com/{year}/day/{day}/input",
+                  headers=headers).text
 
 
 def submit(day, level, answer, year=None):
@@ -24,10 +35,10 @@ def submit(day, level, answer, year=None):
     if not year:
         year = datetime.datetime.now().year
 
-    session_cookie_location = "/home/yelkhadi/.aoc/secret"
+    session_cookie_location = Path(configd) / "secret"
 
     with open(session_cookie_location, "r") as session:
-        headers = {"Cookie": session.readline()[:-1]}
+        headers = {"Cookie": session.read().rsplit()[0]}
 
     headers["Content-Type"] = "application/x-www-form-urlencoded"
 

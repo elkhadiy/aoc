@@ -27,8 +27,10 @@ dependencies = [
     "llvmlite",
     "numba",
     "beautifulsoup4",
+    "lxml",
     "requests",
-    "requests_cache"
+    "requests_cache",
+    "platformdirs"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
