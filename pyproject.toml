@@ -30,7 +30,8 @@ dependencies = [
     "lxml",
     "requests",
     "requests_cache",
-    "platformdirs"
+    "platformdirs",
+    "rich"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
