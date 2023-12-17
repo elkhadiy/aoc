@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from functools import partial
+import logging
 
 from rich.progress import Progress, MofNCompleteColumn, TimeElapsedColumn, TransferSpeedColumn
 from multiprocessing import Process, Queue
@@ -10,7 +10,7 @@ from rangemap import RangeMap
 
 def almanac(input):
     return OrderedDict({
-        m.split('map:\n')[0].strip(): RangeMap.from_starts_and_lengths_str(m.split('map:\n')[1])
+        m.split('map:\n')[0].strip(): RangeMap(m.split('map:\n')[1])
         for m in input.strip().split('\n\n')
         if not m.startswith('seeds:')
     })
@@ -37,21 +37,17 @@ def closest_location(seed_range, almanac, progress_queue, result_queue):
     result = []
     for i, seed in enumerate(range(seed_range[0], seed_range[0]+seed_range[1])):
         result.append(seed_to_location(seed, almanac=almanac))
-        if i % 10000 == 0:
+        if i and (i % 10000 == 0):
             progress_queue.put_nowait(10000)
-    progress_queue.put_nowait(10000)
+            logging.info(f"result = {min(result)}")
+    progress_queue.put_nowait(i % 10000 + 1)
     result_queue.put_nowait(min(result))
 
 
 if __name__ == "__main__":
     input = aoc.input(5)
     seed_ranges = list(zip(seeds(input)[::2], seeds(input)[1::2]))
-    with Progress(
-        *Progress.get_default_columns(),
-        MofNCompleteColumn(),
-        TransferSpeedColumn(),
-        TimeElapsedColumn()
-    ) as progress:
+    with Progress(*Progress.get_default_columns(), MofNCompleteColumn(), TransferSpeedColumn(), TimeElapsedColumn()) as progress:
         tasks_progress = [progress.add_task(f"{seed_range}", total=seed_range[1]) for seed_range in seed_ranges]
         progress_queues = [Queue() for _ in range(len(seed_ranges))]
         result_queues = [Queue() for _ in range(len(seed_ranges))]
